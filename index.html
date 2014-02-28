@@ -32,6 +32,11 @@
     pointer-events: none;
   }
 
+  .legendTitle{
+    font-weight: bold;
+
+  }
+
   span{
     /*color: pink;*/
     font-weight: bold;
@@ -78,7 +83,7 @@ us.objects.states.geometries.forEach(function(d){
   d.properties = rates.filter(function(v){return +v.id == +d.id;})[0];
 });
 
-var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br>Inmates only','Disenfranchised: Inmates & Parolees', 'Disenfranchised: <br>Inmates, Parolees, & Probationers', 'Disenfranchised: <br>Inmates, Parolees, Probationers, & Ex-felons']);
+var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br>Inmates','Disenfranchised: Inmates & Parolees', 'Disenfranchised: <br>Inmates, Parolees, & Probationers', 'Disenfranchised: <br>Inmates, Parolees, Probationers, & Ex-felons']);
 
 var width = 550,
   height = 550,
@@ -185,12 +190,15 @@ var pieChart = g.append("g")
     .append("text")
     .text("Percent of Voting Age")
     .attr("text-anchor","middle")
+    .style("font-weight","bold")
 
   pieChart.append("g")
     .attr("transform","translate(" + [pieWidth/2,pieHeight + 20] + ")")
     .append("text")
     .text("Population Disenfranchised")
     .attr("text-anchor","middle")
+    .style("font-weight","bold")
+
 
   var stateLabel = pieChart.append("g")
     .attr("transform","translate(" + [pieWidth/2 -1,pieHeight/2 + 5] + ")")
@@ -199,22 +207,32 @@ var pieChart = g.append("g")
     .text("US")
     .attr("text-anchor","middle");
 
+  var legend = g.append("g")
+    .attr("transform","translate(" + [width, height] + ")")
+  
+  legend.append("text")
+    .attr("class","legendTitle")
+    .text("Who can't vote?")
+    .attr("y", -140)
+    .attr("x",-18)
+    .style("text-anchor","end")
 
-  var legend = g.selectAll(".legend")
-      .data(['No voting restrictions','Inmates only','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons'].reverse())
+  var lSquares = legend.selectAll(".legend")
+      .data(['No voting restrictions','Inmates','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons'].reverse())
     .enter().append("g")
       .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(0," + (height - 40 - i * 23) + ")"; });
+      .attr("transform", function(d, i) { return "translate(0," + (- 40 - i * 23) + ")"; });
 
-  legend.append("rect")
-      .attr("x", width - 18)
+
+  lSquares.append("rect")
+      .attr("x",  "-18px")
       .attr("width", 18)
       .attr("height", 18)
       .attr("stroke", "#444")
       .style("fill", function(d,i){ return color(5-i);});
 
-  legend.append("text")
-      .attr("x", width - 24)
+  lSquares.append("text")
+      .attr("x", "-24px")
       .attr("y", 9)
       .attr("dy", ".35em")
       .style("text-anchor", "end")
