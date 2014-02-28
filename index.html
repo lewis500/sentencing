@@ -75,7 +75,7 @@ var rateById = d3.map();
 
 // var color = d3.scale.ordinal().domain([1,2,3,4,5]).range(["#009ed8","#80e28e","#e9ec32","#f6a023","#f37124"])
 
-var color = d3.scale.ordinal().domain([1,2,3,4,5]).range(['rgb(239,243,255)','rgb(189,215,231)','rgb(107,174,214)','rgb(49,130,189)','rgb(8,81,156)'])
+var color = d3.scale.ordinal().domain([1,2,3,4,5]).range(['rgb(254,229,217)','rgb(252,174,145)','rgb(251,106,74)','rgb(222,45,38)','rgb(165,15,21)'])
 
 rates.forEach(function(d) { rateById.set(d.id, color(+d.restriction)); });
 
@@ -83,7 +83,7 @@ us.objects.states.geometries.forEach(function(d){
   d.properties = rates.filter(function(v){return +v.id == +d.id;})[0];
 });
 
-var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br>Inmates','Disenfranchised: Inmates & Parolees', 'Disenfranchised: <br>Inmates, Parolees, & Probationers', 'Disenfranchised: <br>Inmates, Parolees, Probationers, & Ex-felons']);
+var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br> Inmates','Disenfranchised: <br> Inmates & Parolees', 'Disenfranchised: <br> Inmates, Parolees, & Probationers', 'Disenfranchised: <br> Inmates, Parolees, Probationers, & Ex-felons']);
 
 var width = 550,
   height = 550,
@@ -138,7 +138,7 @@ g.append("g")
     .on('mouseover', function(d){
       var p = d.properties;
       pieAdjust(p);
-      return tip.show( '<span>' + p.name + '</span><br>' + rests(p.restriction) + "<br>Total disenfranchised: " + d3.format(",g")(p.total))
+      return tip.show( '<span>' + p.name + '</span><br>' + rests(p.restriction) + "<br>Total disenfranchised: <br>" + d3.format(",g")(p.total))
     })
     .on('mouseout', function(d){
           tip.hide()
@@ -174,7 +174,7 @@ var pieChart = g.append("g")
       .attr("transform", "translate(" + pieWidth / 2 + "," + pieHeight / 2 + ")")
 
     arcG.append("path")
-      .attr("fill", function(d, i) { return (i==1) ? "#a6bddb" : "#045a8d"; })
+      .attr("fill", function(d, i) { return (i==0) ? "#a50f15" : "#fcae91"; })
       .attr("stroke","white")
       .attr("d", arc)
       .each(function(d) { this._current = d; }); // store the initial angles
