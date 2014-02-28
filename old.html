@@ -48,7 +48,11 @@
 
 <body>
 
-<div class=".d3-tip"></div>
+<div class=".d3-tip">
+</div>
+
+<div id="map"></div>
+<!-- <div id="piechart"></div> -->
 
 </body>
 
@@ -56,14 +60,14 @@
 <script src="rates.js"></script>
 
 
-<script>
 
+<script>
 
 var rateById = d3.map();
 
 // var color = d3.scale.ordinal().domain([1,2,3,4,5]).range(["#009ed8","#80e28e","#e9ec32","#f6a023","#f37124"])
 
-var color = d3.scale.ordinal().domain([1,2,3,4,5]).range(['rgba(215,25,28,.8)','rgb(253,174,97)','rgb(255,255,191)','rgb(171,221,164)','rgb(43,131,186)'].reverse())
+var color = d3.scale.ordinal().domain([1,2,3,4,5]).range(['rgb(239,243,255)','rgb(189,215,231)','rgb(107,174,214)','rgb(49,130,189)','rgb(8,81,156)'])
 
 rates.forEach(function(d) { rateById.set(d.id, color(+d.restriction)); });
 
@@ -71,14 +75,14 @@ us.objects.states.geometries.forEach(function(d){
   d.properties = rates.filter(function(v){return +v.id == +d.id;})[0];
 });
 
-var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No restriction','Inmates only','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons']);
+var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Restricted from voting: <br>Inmates only','Inmates & Parolees', 'Restricted from voting: <br>Inmates, Parolees, & Probationers', 'Restricted from voting: <br>Inmates, Parolees, Probationers, & Ex-felons']);
 
-var width = 960,
+var width = 550,
   height = 500,
   centered;
 
 var projection = d3.geo.albersUsa()
-    .scale(1070)
+    .scale(750)
     .translate([width / 2, height / 2]);
 
 var path = d3.geo.path()
@@ -86,12 +90,10 @@ var path = d3.geo.path()
 
 var margin = {top: 50, left: 50, right: 10, bottom: 10};
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#map").append("svg")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
-
-
-var g = svg.append("g").attr("transform", "translate(" + margin.top + "," + margin.left + ")");
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 /* Initialize tooltip */
 var tip = d3.tip().html(function(d) { return d; });
@@ -101,8 +103,7 @@ svg.call(tip);
 
 tip.attr("class","d3-tip");
 
-
-g.append("g")
+svg.append("g")
     .attr("id", "states")
   .selectAll("path")
       .data(topojson.feature(us, us.objects.states).features)
@@ -110,23 +111,117 @@ g.append("g")
     .attr("class","state-area")
     .attr("fill", function(d) { return rateById.get(d.id); })
     .attr("d", path)
-    // .attr("stroke","white")
-    // .attr("stroke-width","1.5px")
-  .on('mouseover', function(d){
-    // d3.select(this).transition().duration(50).attr("stroke","#888").attr("stroke-width","3px")
-    var p = d.properties
-    return tip.show( '<span>' + p.name + '</span><br>' + rests(p.restriction))
-  })
-  .on('mouseout', function(d){
-        // d3.select(this).transition().duration(50).attr("stroke","white").attr("stroke-width","1.5px")
-        tip.hide()
-  })
+    .attr("stroke","black")
+    .attr("stroke-width","2px")
+    .attr("stroke-opacity",0.2)
+    .on('mouseover', function(d){
+      var p = d.properties;
+      pieAdjust(p);
+      return tip.show( '<span>' + p.name + '</span><br>' + rests(p.restriction) + "<br>Total disenfranchised: " + d3.format(",g")(p.total))
+    })
+    .on('mouseout', function(d){
+          tip.hide()
+    })
 
-g.append("path")
+svg.append("path")
     .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
     .attr("id", "state-borders")
     .attr("d", path);
 
+var pieWidth = 120,
+    pieHeight = 120,
+    radius = Math.min(pieWidth, pieHeight) / 2;
+
+var pie = d3.layout.pie();
+
+var arc = d3.svg.arc()
+    .innerRadius(radius - 40)
+    .outerRadius(radius - 20);
+
+
+var arcT = d3.svg.arc()
+    .innerRadius(radius - 10)
+    .outerRadius(radius);
+
+var pieChart = svg.append("g")
+    .attr("transform", "translate(" + [width  - 250, height -115] + ")");
+
+  var arcG = pieChart.selectAll(".arc")
+      .data(pie([0,1]))
+    .enter().append("g")
+      .attr("class", "arc")
+      .attr("transform", "translate(" + pieWidth / 2 + "," + pieHeight / 2 + ")")
+
+    arcG.append("path")
+      .attr("fill", function(d, i) { return (i==1) ? "#a6bddb" : "#045a8d"; })
+      .attr("stroke","white")
+      .attr("d", arc)
+      .each(function(d) { this._current = d; }); // store the initial angles
+ 
+ var sliceLabel = d3.select(arcG[0][0]).append("text")
+      .attr("transform", function(d) { return "translate(" + arcT.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      // .text(function(d) { console.log(d); return d3.format("%.2")(d.value); });
+
+  pieChart.append("g")
+    .attr("transform","translate(" + [pieWidth/2,pieHeight] + ")")
+    .append("text")
+    .text("Percent of Voting Age Population Disenfranchized")
+    .attr("text-anchor","middle")
+
+  var stateLabel = pieChart.append("g")
+    .attr("transform","translate(" + [pieWidth/2 -1,pieHeight/2 + 5] + ")")
+    .append("text")
+    .attr("class","littlelabel")
+    .text("US")
+    .attr("text-anchor","middle");
+
+
+  var legend = svg.selectAll(".legend")
+      .data(['No voting restrictions','Inmates only','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons'])
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("stroke", "#444")
+      .style("fill", color);
+
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d; });
+
+function arcTween(a) {
+  var i = d3.interpolate(this._current, a);
+  this._current = i(0);
+  return function(t) {
+    return arc(i(t));
+  };
+}
+
+function pieAdjust(p){
+
+  // if(p.rate==0) p.rate = .00001;
+
+  var path = d3.selectAll(".arc > path").data(pie([p.rate, 1-p.rate]))
+
+  path.transition("cubic").duration(400).attrTween("d", arcTween);
+
+  sliceLabel.data(pie([p.rate, 1-p.rate]))
+      .transition().duration(300)
+      .attr("transform", function(d) { return "translate(" + arcT.centroid(d) + ")"; })
+      .text(function(d) { console.log(d); return d3.format(".1%")(d.value); });
+
+  d3.selectAll(".littlelabel").text(p.abbr)
+
+}
 
 </script>
 
