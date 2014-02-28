@@ -75,15 +75,15 @@ us.objects.states.geometries.forEach(function(d){
   d.properties = rates.filter(function(v){return +v.id == +d.id;})[0];
 });
 
-var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Restricted: <br>Inmates only','Restricted: Inmates & Parolees', 'Restricted: <br>Inmates, Parolees, & Probationers', 'Restricted: <br>Inmates, Parolees, Probationers, & Ex-felons']);
+var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br>Inmates only','Disenfranchised: Inmates & Parolees', 'Disenfranchised: <br>Inmates, Parolees, & Probationers', 'Disenfranchised: <br>Inmates, Parolees, Probationers, & Ex-felons']);
 
 var width = 550,
-  height = 500,
+  height = 550,
   centered;
 
 var projection = d3.geo.albersUsa()
     .scale(750)
-    .translate([width / 2, height / 2]);
+    .translate([width / 2, height / 2 -60]);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -144,10 +144,10 @@ var arcT = d3.svg.arc()
     .outerRadius(radius);
 
 var pieChart = svg.append("g")
-    .attr("transform", "translate(" + [width  - 250, height -115] + ")");
+    .attr("transform", "translate(" + [60, height - 165] + ")");
 
   var arcG = pieChart.selectAll(".arc")
-      .data(pie([0,1]))
+      .data(pie([.025,.975]))
     .enter().append("g")
       .attr("class", "arc")
       .attr("transform", "translate(" + pieWidth / 2 + "," + pieHeight / 2 + ")")
@@ -162,12 +162,18 @@ var pieChart = svg.append("g")
       .attr("transform", function(d) { return "translate(" + arcT.centroid(d) + ")"; })
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
-      // .text(function(d) { console.log(d); return d3.format("%.2")(d.value); });
+      .text(function(d) { return d3.format(".1%")(d.value); });
 
   pieChart.append("g")
     .attr("transform","translate(" + [pieWidth/2,pieHeight] + ")")
     .append("text")
-    .text("Percent of Voting Age Population Disenfranchized")
+    .text("Percent of Voting Age")
+    .attr("text-anchor","middle")
+
+  pieChart.append("g")
+    .attr("transform","translate(" + [pieWidth/2,pieHeight + 20] + ")")
+    .append("text")
+    .text("Population Disenfranchised")
     .attr("text-anchor","middle")
 
   var stateLabel = pieChart.append("g")
@@ -179,17 +185,17 @@ var pieChart = svg.append("g")
 
 
   var legend = svg.selectAll(".legend")
-      .data(['No voting restrictions','Inmates only','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons'])
+      .data(['No voting restrictions','Inmates only','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons'].reverse())
     .enter().append("g")
       .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+      .attr("transform", function(d, i) { return "translate(0," + (height - 40 - i * 23) + ")"; });
 
   legend.append("rect")
       .attr("x", width - 18)
       .attr("width", 18)
       .attr("height", 18)
       .attr("stroke", "#444")
-      .style("fill", color);
+      .style("fill", function(d,i){ return color(5-i);});
 
   legend.append("text")
       .attr("x", width - 24)
