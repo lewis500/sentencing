@@ -10,6 +10,10 @@
     /*width: 620px;*/
   }
 
+.background {
+  fill: none;
+  pointer-events: all;
+}
 
   #states {
     fill: #aaa;
@@ -52,7 +56,6 @@
 </div>
 
 <div id="map"></div>
-<!-- <div id="piechart"></div> -->
 
 </body>
 
@@ -93,17 +96,30 @@ var margin = {top: 50, left: 50, right: 10, bottom: 10};
 var svg = d3.select("#map").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .on("mouseover", function(d){
+    var p = {
+      abbr: "US",
+      rate: ".025"
+    }
+    pieAdjust(p);
+  })
+var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 /* Initialize tooltip */
 var tip = d3.tip().html(function(d) { return d; });
 
 /* Invoke the tip in the context of your visualization */
-svg.call(tip);
+g.call(tip);
 
 tip.attr("class","d3-tip");
 
-svg.append("g")
+g.append("g")
     .attr("id", "states")
   .selectAll("path")
       .data(topojson.feature(us, us.objects.states).features)
@@ -123,7 +139,7 @@ svg.append("g")
           tip.hide()
     })
 
-svg.append("path")
+g.append("path")
     .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
     .attr("id", "state-borders")
     .attr("d", path);
@@ -143,7 +159,7 @@ var arcT = d3.svg.arc()
     .innerRadius(radius - 10)
     .outerRadius(radius);
 
-var pieChart = svg.append("g")
+var pieChart = g.append("g")
     .attr("transform", "translate(" + [60, height - 165] + ")");
 
   var arcG = pieChart.selectAll(".arc")
@@ -184,7 +200,7 @@ var pieChart = svg.append("g")
     .attr("text-anchor","middle");
 
 
-  var legend = svg.selectAll(".legend")
+  var legend = g.selectAll(".legend")
       .data(['No voting restrictions','Inmates only','Inmates & Parolees', 'Inmates, Parolees, & Probationers', 'Inmates, Parolees, Probationers, & Ex-felons'].reverse())
     .enter().append("g")
       .attr("class", "legend")
