@@ -75,7 +75,7 @@ us.objects.states.geometries.forEach(function(d){
   d.properties = rates.filter(function(v){return +v.id == +d.id;})[0];
 });
 
-var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Restricted from voting: <br>Inmates only','Inmates & Parolees', 'Restricted from voting: <br>Inmates, Parolees, & Probationers', 'Restricted from voting: <br>Inmates, Parolees, Probationers, & Ex-felons']);
+var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Restricted: <br>Inmates only','Restricted: Inmates & Parolees', 'Restricted: <br>Inmates, Parolees, & Probationers', 'Restricted: <br>Inmates, Parolees, Probationers, & Ex-felons']);
 
 var width = 550,
   height = 500,
@@ -217,7 +217,7 @@ function pieAdjust(p){
   sliceLabel.data(pie([p.rate, 1-p.rate]))
       .transition().duration(300)
       .attr("transform", function(d) { return "translate(" + arcT.centroid(d) + ")"; })
-      .text(function(d) { console.log(d); return d3.format(".1%")(d.value); });
+      .text(function(d) { return d3.format(".1%")(d.value); });
 
   d3.selectAll(".littlelabel").text(p.abbr)
 
