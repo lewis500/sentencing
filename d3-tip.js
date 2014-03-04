@@ -288,6 +288,14 @@
   
       return bbox
     }
+
+    tip.getBox = function(){
+      return getScreenBBox();
+    }
+
+    tip.getPoint = function(){
+      return point;
+    }
   
     return tip
   };

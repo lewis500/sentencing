@@ -48,7 +48,10 @@
     stroke-width: 3px;
   }
 
+
+
 </style>
+<!-- <link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css"> -->
 <script src="http://d3js.org/d3.v3.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
@@ -59,8 +62,11 @@
 
 <div class=".d3-tip">
 </div>
-
-<div id="map"></div>
+<div  style="width: 620px;">
+  <div style="text-align:center;"><h2>"Felon Disenfranchisement Laws and Rates in 2010"</h2></div>
+  <div id="map"></div>
+  <p style="float: right;">Source: <a href="http://www.sentencingproject.org/doc/publications/fd_State_Level_Estimates_of_Felon_Disen_2010.pdf">The Sentencing Project</a></p>
+</div>
 
 </body>
 
@@ -86,12 +92,12 @@ us.objects.states.geometries.forEach(function(d){
 var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br> Inmates','Disenfranchised: <br> Inmates & Parolees', 'Disenfranchised: <br> Inmates, Parolees, & Probationers', 'Disenfranchised: <br> Inmates, Parolees, Probationers, & Ex-felons']);
 
 var width = 550,
-  height = 630,
+  height = 515,
   centered;
 
 var projection = d3.geo.albersUsa()
     .scale(750)
-    .translate([width / 2, height / 2 -45]);
+    .translate([width / 2, height / 2 -130]);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -136,9 +142,27 @@ g.append("g")
     .attr("stroke-width","2px")
     .attr("stroke-opacity",0.2)
     .on('mouseover', function(d){
+
+      var b = tip.getBox();
+
+      if(b.n.y < 200){
+        tip.direction('s');
+        var t = tip.getPoint();
+        if((width - t.x) < 150) tip.direction('sw');
+        if(t.x < 150) tip.direction('se');
+      }else{
+        tip.direction('n')
+        var t = tip.getPoint();
+        if((width - t.x) < 150) tip.direction('nw');
+        if(t.x < 150) tip.direction('ne');
+      }
+
+      if(t.y > 250 && t.x < 150) tip.direction('e'); 
+      if(t.y > 250 && (width-t.x)<150) tip.direction('w');
+
       var p = d.properties;
       pieAdjust(p);
-      return tip.show( '<span>' + p.name + '</span><p>' + rests(p.restriction) + "</p>Total disenfranchised: <br>" + d3.format(",g")(p.total))
+      return tip.show( '<div class="lewis"> <span>' + p.name + '</span><p>' + rests(p.restriction) + "</p>Total disenfranchised: <br>" + d3.format(",g")(p.total) + "</div>");
     })
     .on('mouseout', function(d){
           tip.hide()
@@ -149,14 +173,14 @@ g.append("path")
     .attr("id", "state-borders")
     .attr("d", path);
 
-var pieWidth = 120,
-    pieHeight = 120,
+var pieWidth = 150,
+    pieHeight = 150,
     radius = Math.min(pieWidth, pieHeight) / 2;
 
 var pie = d3.layout.pie();
 
 var arc = d3.svg.arc()
-    .innerRadius(radius - 40)
+    .innerRadius(radius - 50)
     .outerRadius(radius - 20);
 
 
