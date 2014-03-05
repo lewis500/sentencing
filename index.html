@@ -63,7 +63,7 @@
 <div class=".d3-tip">
 </div>
 <div  style="width: 620px;">
-  <div style="text-align:center;"><h2>"Felon Disenfranchisement Laws and Rates in 2010"</h2></div>
+  <div style="text-align:center;"><h2>Felon Disenfranchisement by State, 2010</h2></div>
   <div id="map"></div>
   <p style="float: right;">Source: <a href="http://www.sentencingproject.org/doc/publications/fd_State_Level_Estimates_of_Felon_Disen_2010.pdf">The Sentencing Project</a></p>
 </div>
@@ -92,7 +92,7 @@ us.objects.states.geometries.forEach(function(d){
 var rests = d3.scale.ordinal().domain([1,2,3,4,5]).range(['No voting restrictions','Disenfranchised: <br> Inmates','Disenfranchised: <br> Inmates & Parolees', 'Disenfranchised: <br> Inmates, Parolees, & Probationers', 'Disenfranchised: <br> Inmates, Parolees, Probationers, & Ex-felons']);
 
 var width = 550,
-  height = 515,
+  height = 550,
   centered;
 
 var projection = d3.geo.albersUsa()
@@ -173,14 +173,14 @@ g.append("path")
     .attr("id", "state-borders")
     .attr("d", path);
 
-var pieWidth = 150,
-    pieHeight = 150,
+var pieWidth = 120,
+    pieHeight = 120,
     radius = Math.min(pieWidth, pieHeight) / 2;
 
 var pie = d3.layout.pie();
 
 var arc = d3.svg.arc()
-    .innerRadius(radius - 50)
+    .innerRadius(radius - 40)
     .outerRadius(radius - 20);
 
 
